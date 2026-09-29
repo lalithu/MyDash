@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import Class Schedule</title>
+<script defer src="schedule.bundle.js"></script>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#27333d;background:#f6f7f8;--ink:#27333d;--muted:#6d7781;--line:#e4e8ec;--soft:#f7f8f9;--green:#2f7d52;--green-bg:#edf8f2}*{box-sizing:border-box}body{margin:0;padding:34px 20px 56px}.wrap{max-width:980px;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-size:14px;font-weight:800;color:#64707b}.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:800}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:18px;box-shadow:0 8px 30px rgba(20,30,40,.05)}h1{font-size:30px;line-height:1.12;margin:0 0 9px}h2{font-size:25px;line-height:1.2;margin:0}.sub{color:var(--muted);line-height:1.5}.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.section-copy{min-width:0}.section-copy .sub{margin-top:5px}.drop{display:flex;min-height:150px;align-items:center;justify-content:center;flex-direction:column;border:2px dashed #cfd5dc;border-radius:16px;padding:30px;text-align:center;margin-top:18px;background:#fafbfc;cursor:pointer}.drop strong{display:block;font-size:17px}.drop small{display:block;color:#7a838d;margin-top:5px}.drop.drag{border-color:#2f5aa8;background:#f2f6ff}input[type=file]{display:none}.preview{display:block;max-width:100%;max-height:410px;object-fit:contain;border-radius:12px;margin-top:16px;border:1px solid #e1e4e8}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:11px;padding:12px 17px;font:inherit;font-weight:800;cursor:pointer}.primary{background:var(--ink);color:#fff}.secondary{background:#eef1f4;color:#33404b}.outline{background:#fff;border:1px solid #d8dee4;color:#33404b}.danger{background:#fff1f1;color:#9b3636}.btn:disabled{opacity:.45;cursor:not-allowed}.status{margin-top:12px;padding:11px 13px;border-radius:11px;background:#f1f3f5;color:#5f6b75;font-size:14px;display:none}.status.show{display:block}.status.ok{background:var(--green-bg);color:var(--green)}.status.err{background:#fff0f0;color:#a23d3d}.results{display:none}.results.show{display:block}.editor-list{display:flex;flex-direction:column;gap:12px}.editor-card{position:relative;border:1px solid #e4e8ec;background:#fbfbfc;border-radius:16px;padding:17px 17px 16px 20px;overflow:hidden}.editor-card.invalid{border-color:#d96a6a;background:#fff8f8;box-shadow:0 0 0 3px rgba(196,62,62,.08)}.editor-card.invalid:before{background:#c43e3e}.editor-card.invalid .field input,.editor-card.invalid .field select{border-color:#e0a1a1}.editor-card.invalid .day-chip{border-color:#e2b2b2}.editor-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent,#50677c)}.editor-top{display:grid;grid-template-columns:minmax(220px,1.45fr) minmax(190px,1fr) auto;gap:12px;align-items:end}.editor-bottom{display:grid;grid-template-columns:minmax(250px,1.5fr) minmax(130px,.7fr) minmax(130px,.7fr);gap:12px;margin-top:13px}.field{min-width:0}.field label{display:block;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:#7b858e;font-weight:800;margin:0 0 6px}.field input,.field select{width:100%;min-width:0;border:1px solid #d9dfe5;background:#fff;color:#27333d;border-radius:10px;padding:10px 11px;font:inherit;font-size:14px;outline:none}.field input:focus,.field select:focus{border-color:#8796a5;box-shadow:0 0 0 3px rgba(65,89,110,.08)}.day-picker{display:flex;gap:6px;overflow-x:auto;padding:1px 1px 3px}.day-chip{appearance:none;border:1px solid #d7dde3;background:#fff;color:#67727d;border-radius:999px;padding:9px 11px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;min-width:48px}.day-chip.active{background:#27333d;border-color:#27333d;color:#fff}.delete-row{align-self:end;border:0;background:#fff1f1;color:#9b3636;border-radius:10px;min-width:42px;height:42px;padding:0 12px;font-size:18px;font-weight:800;cursor:pointer}.empty-state{padding:24px;text-align:center;border:1px dashed #ccd4dc;border-radius:14px;color:#78828c;background:#fafbfc}.divider{height:1px;background:#edf0f2;margin:23px 0}.busy-title-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px}.busy-note{color:#76818b;font-size:13px;line-height:1.45}.busy-card:before{background:var(--accent,#d97706)}.busy-card .editor-top{grid-template-columns:minmax(130px,.6fr) minmax(220px,1.35fr) auto}.busy-card .editor-bottom{grid-template-columns:minmax(250px,1.45fr) minmax(130px,.7fr) minmax(130px,.7fr) minmax(190px,1fr)}.save-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid #edf0f2}.save-note{color:#75808a;font-size:13px}.done{display:none;text-align:center;padding:32px}.done.show{display:block}.done h2{margin:0 0 8px}.tiny{font-size:12px;color:#78828c;line-height:1.5}.footnote{margin-top:6px}.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#eef2f5;color:#5f6b75}
+
+.processing{display:none;margin-top:14px;border:1px solid #dce3e9;background:#f8fafb;border-radius:14px;padding:14px 15px}
+.processing.show{display:flex;align-items:center;gap:13px}
+.processing-spinner{width:28px;height:28px;flex:0 0 28px;border:3px solid #dce3e9;border-top-color:#27333d;border-radius:50%;animation:lcd-spin .8s linear infinite}
+.processing-copy{min-width:0;flex:1}
+.processing-title{font-size:14px;font-weight:800;color:#27333d;line-height:1.25}
+.processing-detail{font-size:12px;color:#75808a;margin-top:3px;line-height:1.35}
+.processing-track{height:6px;background:#e6ebef;border-radius:999px;overflow:hidden;margin-top:9px}
+.processing-bar{height:100%;width:0;background:#27333d;border-radius:999px;transition:width .25s ease}
+.processing.indeterminate .processing-bar{width:36%;animation:lcd-progress 1.15s ease-in-out infinite}
+@keyframes lcd-spin{to{transform:rotate(360deg)}}
+@keyframes lcd-progress{0%{transform:translateX(-115%)}50%{transform:translateX(95%)}100%{transform:translateX(285%)}}
+@media(prefers-reduced-motion:reduce){.processing-spinner,.processing.indeterminate .processing-bar{animation:none}.processing.indeterminate .processing-bar{width:60%}}
+
+@media(max-width:820px){.editor-top,.busy-card .editor-top{grid-template-columns:1fr auto}.editor-top .field:nth-child(2),.busy-card .editor-top .field:nth-child(2){grid-column:1/-1;grid-row:2}.editor-bottom,.busy-card .editor-bottom{grid-template-columns:1fr 1fr}.editor-bottom .field:first-child,.busy-card .editor-bottom .field:first-child,.busy-card .editor-bottom .field:last-child{grid-column:1/-1}.section-head{flex-direction:column}.section-head .btn{width:100%}.save-bar{align-items:stretch;flex-direction:column}.save-bar .btn{width:100%}}
+@media(max-width:540px){body{padding:20px 12px 40px}.card{padding:19px;border-radius:16px}h1{font-size:25px}h2{font-size:22px}.editor-top,.busy-card .editor-top,.editor-bottom,.busy-card .editor-bottom{grid-template-columns:1fr}.editor-top .field:nth-child(2),.busy-card .editor-top .field:nth-child(2),.editor-bottom .field:first-child,.busy-card .editor-bottom .field:first-child,.busy-card .editor-bottom .field:last-child{grid-column:auto;grid-row:auto}.delete-row{position:absolute;right:12px;top:12px}.editor-top{padding-right:50px}.day-picker{padding-right:5px}.top{gap:10px;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">Lalith's Canvas Dash</div><div class="pill">On-device when available</div></div>
+
+  <div class="card" id="import-card">
+    <h1>Import your class schedule</h1>
+    <div class="sub">Upload a screenshot of your university schedule. Canvas Dash reads the classes, times, days, and rooms, then gives you a clean editor to fix anything it missed.</div>
+    <label class="drop" id="drop"><strong>Upload schedule screenshot</strong><small>PNG, JPG, or WEBP · one screenshot is usually enough</small><input id="image-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    <img id="preview" class="preview" hidden>
+    <div class="actions"><button id="read" class="btn primary" disabled>Read my schedule</button><label class="btn secondary" for="ics-file">Import .ics instead</label><input id="ics-file" type="file" accept=".ics,text/calendar"></div>
+    <div class="status" id="status"></div>
+
+    <div class="processing" id="processing" role="status" aria-live="polite" aria-hidden="true">
+      <div class="processing-spinner" aria-hidden="true"></div>
+      <div class="processing-copy">
+        <div class="processing-title" id="processing-title">Reading your schedule…</div>
+        <div class="processing-detail" id="processing-detail">This stays on your device.</div>
+        <div class="processing-track" aria-hidden="true"><div class="processing-bar" id="processing-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="section-head">
+      <div class="section-copy"><h2>Check your classes</h2><div class="sub">AI gets you most of the way there. Fix anything it missed before saving.</div></div>
+      <button id="add-class" class="btn outline">+ Add class</button>
+    </div>
+    <div id="course-list" class="editor-list"></div>
+
+    <div class="divider"></div>
+
+    <div class="busy-title-row"><div><h2 style="font-size:21px">Other busy time</h2><div class="busy-note">Add work, office hours, practices, meetings, or anything else that should block group-project scheduling.</div></div><button id="add-busy" class="btn outline">+ Add busy time</button></div>
+    <div id="busy-list" class="editor-list" style="margin-top:14px"></div>
+
+    <div class="save-bar">
+      <div class="save-note">Classes + busy time will power your calendar and shared free-time finder.</div>
+      <div class="actions" style="margin-top:0"><button id="retry" class="btn secondary">Use another screenshot</button><button id="save" class="btn primary">Save my schedule</button></div>
+    </div>
+  </div>
+
+  <div class="card done" id="done"><h2>Schedule saved</h2><div class="sub">Your Calendar and group availability can use it immediately.</div><div class="actions" style="justify-content:center"><button id="close" class="btn primary">Back to Canvas</button></div></div>
+
+  <div class="tiny footnote">Privacy: when Chrome's built-in Prompt API is available, the screenshot is processed by Gemini Nano on your device. No image needs to be sent to a Canvas Dash server. If the local model is unavailable, use an .ics export.</div>
+</div>
+</body>
+</html>

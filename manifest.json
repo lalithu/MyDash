@@ -1,0 +1,59 @@
+{
+  "description": "Plan Canvas work, import your class schedule, see what matters next, and coordinate study time with friends.",
+  "version": "0.9.1",
+  "manifest_version": 3,
+  "name": "Canvas Dash \u2014 Student Planner",
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.bundle.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.instructure.com/*",
+        "https://instructure.charlotte.edu/*"
+      ],
+      "js": [
+        "contentScript.bundle.js"
+      ],
+      "css": [
+        "content.styles.css"
+      ],
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icon-128.png",
+        "options.html",
+        "schedule.html"
+      ],
+      "matches": [
+        "https://*.instructure.com/*",
+        "https://instructure.charlotte.edu/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "action": {
+    "default_title": "Canvas Dash settings",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png"
+    }
+  },
+  "minimum_chrome_version": "138"
+}
