@@ -1,6 +1,6 @@
 {
   "description": "Plan Canvas work, import your class schedule, see what matters next, and coordinate study time with friends.",
-  "version": "0.9.1",
+  "version": "0.9.5",
   "manifest_version": 3,
   "name": "Canvas Dash \u2014 Student Planner",
   "options_page": "options.html",
@@ -23,6 +23,7 @@
         "https://instructure.charlotte.edu/*"
       ],
       "js": [
+        "supabase-config.js",
         "contentScript.bundle.js"
       ],
       "css": [
@@ -36,7 +37,8 @@
       "resources": [
         "icon-128.png",
         "options.html",
-        "schedule.html"
+        "schedule.html",
+        "auth.html"
       ],
       "matches": [
         "https://*.instructure.com/*",
