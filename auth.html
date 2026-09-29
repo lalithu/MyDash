@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Dash Account</title>
+</head>
+
+<body>
+  <h1>Canvas Dash</h1>
+
+  <form id="signup-form">
+    <input id="display-name" placeholder="Display name" required>
+    <input id="username" placeholder="@username" required>
+    <input id="school" placeholder="School" required>
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Password" minlength="6" required>
+
+    <button type="submit">Create account</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script src="supabase-config.js"></script>
+  <script src="auth.bundle.js"></script>
+</body>
+</html>
