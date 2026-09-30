@@ -68,34 +68,49 @@ async function parseWithLocalAI(){
 function parseICS(text){const events=[],blocks=String(text).split("BEGIN:VEVENT").slice(1).map(x=>x.split("END:VEVENT")[0]),unfold=s=>s.replace(/\r?\n[ \t]/g,"");for(const raw of blocks){const b=unfold(raw),val=name=>{const m=b.match(new RegExp("(?:^|\\n)"+name+"(?:;[^:]*)?:([^\\n\\r]+)","i"));return m?m[1].trim():""},summary=val("SUMMARY"),loc=val("LOCATION"),ds=val("DTSTART"),de=val("DTEND"),rr=val("RRULE");if(!summary||!ds||!de)continue;const tm=x=>{const m=x.match(/T(\d{2})(\d{2})/);return m?m[1]+":"+m[2]:""};let days=[];const by=rr.match(/BYDAY=([^;]+)/i);if(by)days=by[1].split(",").map(x=>({MO:1,TU:2,WE:3,TH:4,FR:5,SA:6,SU:0}[x])).filter(x=>x!=null);if(!days.length){const d=new Date(ds.slice(0,4)+"-"+ds.slice(4,6)+"-"+ds.slice(6,8)+"T12:00:00");days=[d.getDay()]}events.push({title:summary,courseCode:"",days,start:tm(ds),end:tm(de),location:loc})}return normalizeRows(events)}
 function chooseFile(file){if(!file)return;hideProcessing();imageBlob=file;const p=$("preview");p.src=URL.createObjectURL(file);p.hidden=false;$("read").disabled=false;showStatus("Screenshot ready. Click “Read my schedule”.")}
 function expandBusyForStorage(){const out=[];busyBlocks.forEach((b,idx)=>{const days=normalizeDays(b.days);days.forEach((d,j)=>out.push({id:(b.id||"busy-"+Date.now()+"-"+idx)+"-"+j,title:(b.title||b.category||"Busy").trim(),category:b.category||"Other",days:[d],start:normalizeTime(b.start),end:normalizeTime(b.end),location:(b.location||"").trim(),source:"manual"}))});return out.filter(x=>x.title&&x.days.length&&x.start&&x.end)}
-function loadExistingBusy(){try{chrome.storage.local.get(["lcd_manual_events"],saved=>{if(!Array.isArray(saved.lcd_manual_events))return;const grouped=[];for(const e of saved.lcd_manual_events){const key=[e.title,e.category,e.start,e.end,e.location].join("|");let g=grouped.find(x=>x._key===key);if(!g){g={_key:key,id:"busy-existing-"+grouped.length,title:e.title||e.category||"Busy",category:e.category||"Other",days:[],start:e.start||"17:00",end:e.end||"18:00",location:e.location||"",source:"manual"};grouped.push(g)}g.days.push(...normalizeDays(e.days||[]))}busyBlocks=grouped.map(x=>{delete x._key;x.days=normalizeDays(x.days);return x});if($("results").classList.contains("show"))renderBusy()})}catch(e){}}
-$("image-file").addEventListener("change",e=>chooseFile(e.target.files[0]));const drop=$("drop");["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));drop.addEventListener("drop",e=>chooseFile(e.dataTransfer.files[0]));$("read").addEventListener("click",async()=>{const b=$("read");b.disabled=true;try{await parseWithLocalAI()}catch(e){hideProcessing();showStatus(e.message||String(e),"err")}finally{b.disabled=false}});$("ics-file").addEventListener("change",async e=>{try{classes=parseICS(await e.target.files[0].text());if(!classes.length)throw new Error("No recurring calendar events found in that .ics file.");renderAll();showStatus("Imported "+classes.length+" recurring class/event blocks from .ics.","ok")}catch(err){showStatus(err.message||String(err),"err")}});$("add-class").addEventListener("click",addClass);$("add-busy").addEventListener("click",addBusy);$("retry").addEventListener("click",()=>{hideProcessing();$("results").classList.remove("show");classes=[];$("image-file").value="";$("preview").hidden=true;showStatus("Choose another screenshot.")});$("save").addEventListener("click",()=>{
+function groupBusy(events){const grouped=[];for(const e of Array.isArray(events)?events:[]){const key=[e.title,e.category,e.start,e.end,e.location].join("|");let g=grouped.find(x=>x._key===key);if(!g){g={_key:key,id:"busy-existing-"+grouped.length,title:e.title||e.category||"Busy",category:e.category||"Other",days:[],start:e.start||"17:00",end:e.end||"18:00",location:e.location||"",source:"manual"};grouped.push(g)}g.days.push(...normalizeDays(e.days||[]))}return grouped.map(x=>{delete x._key;x.days=normalizeDays(x.days);return x})}
+function selectedShareMode(){const e=document.querySelector('input[name="share-mode"]:checked');return e&&["full","busy","hidden"].includes(e.value)?e.value:"busy"}
+function setShareMode(mode){const safe=["full","busy","hidden"].includes(mode)?mode:"busy";const e=document.querySelector('input[name="share-mode"][value="'+safe+'"]');if(e)e.checked=true}
+function storageGet(keys){return new Promise(resolve=>{try{chrome.storage.local.get(keys,v=>resolve(v||{}))}catch(e){resolve({})}})}
+function storageSet(value){return new Promise((resolve,reject)=>{try{chrome.storage.local.set(value,()=>{const e=chrome.runtime&&chrome.runtime.lastError;e?reject(new Error(e.message)):resolve()})}catch(e){reject(e)}})}
+function sbConfig(){const c=window.CANVAS_DASH_SUPABASE||{};return{url:String(c.url||"").replace(/\/$/,""),publishableKey:c.publishableKey||""}}
+async function refreshSession(session){const c=sbConfig();if(!c.url||!c.publishableKey||!session||!session.refresh_token)return null;const r=await fetch(c.url+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{"Content-Type":"application/json",apikey:c.publishableKey},body:JSON.stringify({refresh_token:session.refresh_token})});if(!r.ok)return null;const d=await r.json(),next={access_token:d.access_token,refresh_token:d.refresh_token||session.refresh_token,expires_in:d.expires_in,user:d.user||session.user,obtained_at:Date.now()};await storageSet({canvas_dash_session:next});return next}
+async function rpcWithSession(name,args,retry=true){const c=sbConfig(),saved=await storageGet(["canvas_dash_session"]),session=saved.canvas_dash_session;if(!c.url||!c.publishableKey)throw new Error("Supabase config is missing.");if(!session||!session.access_token)return null;const r=await fetch(c.url+"/rest/v1/rpc/"+name,{method:"POST",headers:{"Content-Type":"application/json",apikey:c.publishableKey,Authorization:"Bearer "+session.access_token,Prefer:"return=representation"},body:JSON.stringify(args||{})});if(r.status===401&&retry){const fresh=await refreshSession(session);if(fresh)return rpcWithSession(name,args,false)}const text=await r.text();let data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}if(!r.ok){const msg=data&&(data.message||data.msg||data.hint||data.error_description)||("Request failed ("+r.status+")");throw new Error(msg)}return data}
+function sharedBlocks(validClasses,manual,mode){if(mode==="hidden")return[];const out=[];const add=(row,kind)=>{normalizeDays(row.days).forEach(day=>{const isClass=kind==="class";const full=mode==="full";out.push({day,start:normalizeTime(row.start),end:normalizeTime(row.end),title:full?(isClass?(row.title||row.courseCode||"Class"):(row.category||"Busy")):"Busy",location:full&&isClass?(row.location||""):"",kind:full?kind:"busy",category:full?(isClass?"Class":(row.category||"Other")):"Busy"})})};validClasses.forEach(x=>add(x,"class"));manual.forEach(x=>add(x,"manual"));return out.filter(x=>Number.isInteger(x.day)&&x.start&&x.end).sort((a,b)=>a.day-b.day||a.start.localeCompare(b.start)||a.end.localeCompare(b.end)||a.title.localeCompare(b.title))}
+async function syncSharePayload(mode,blocks){const res=await rpcWithSession("upsert_my_shared_schedule",{p_share_mode:mode,p_blocks:blocks});return res!==null}
+async function loadExistingSchedule(){const saved=await storageGet(["lcd_schedule_classes","lcd_manual_events","lcd_schedule_share_mode"]);classes=normalizeRows(saved.lcd_schedule_classes||[]);busyBlocks=groupBusy(saved.lcd_manual_events||[]);setShareMode(saved.lcd_schedule_share_mode||"busy");if(classes.length||busyBlocks.length){renderAll();showStatus("Loaded your saved schedule. Edit anything below, or re-import above.","ok")}else{setShareMode(saved.lcd_schedule_share_mode||"busy")}}
+$("image-file").addEventListener("change",e=>chooseFile(e.target.files[0]));const drop=$("drop");["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));drop.addEventListener("drop",e=>chooseFile(e.dataTransfer.files[0]));
+$("read").addEventListener("click",async()=>{const b=$("read");b.disabled=true;try{await parseWithLocalAI()}catch(e){hideProcessing();showStatus(e.message||String(e),"err")}finally{b.disabled=false}});
+$("ics-file").addEventListener("change",async e=>{try{classes=parseICS(await e.target.files[0].text());if(!classes.length)throw new Error("No recurring calendar events found in that .ics file.");renderAll();showStatus("Imported "+classes.length+" recurring class/event blocks from .ics. Review them, then save.","ok")}catch(err){showStatus(err.message||String(err),"err")}});
+$("manual-start").addEventListener("click",()=>{renderAll();addClass();showStatus("Manual editor ready. Add the classes and busy blocks you want, then save.")});
+$("add-class").addEventListener("click",addClass);$("add-busy").addEventListener("click",addBusy);
+$("retry").addEventListener("click",()=>{hideProcessing();$("image-file").value="";$("preview").hidden=true;showStatus("Choose a new screenshot or .ics file above. Your current editor stays intact until you save a replacement.");$("import-card").scrollIntoView({behavior:"smooth",block:"start"})});
+$("save").addEventListener("click",async()=>{
   const btn=$("save");
   if(!validateClassesForSave())return;
   const validClasses=normalizeRows(classes),manual=expandBusyForStorage();
-  if(!validClasses.length)return showStatus("Add at least one valid class before saving.","err");
-  btn.disabled=true;
-  btn.dataset.originalText=btn.dataset.originalText||btn.textContent;
-  btn.textContent="Saving…";
-  showStatus("Saving your schedule…");
-  const payload={lcd_schedule_classes:validClasses,lcd_manual_events:manual,lcd_schedule_imported_at:Date.now()};
-  chrome.storage.local.set(payload,()=>{
-    const writeErr=chrome.runtime&&chrome.runtime.lastError;
-    if(writeErr){
-      btn.disabled=false;btn.textContent=btn.dataset.originalText;
-      return showStatus("Couldn’t save schedule: "+writeErr.message,"err");
+  const mode=selectedShareMode(),blocks=sharedBlocks(validClasses,manual,mode),syncHash=JSON.stringify({mode,blocks});
+  btn.disabled=true;btn.dataset.originalText=btn.dataset.originalText||btn.textContent;btn.textContent="Saving…";showStatus("Saving locally first…");
+  try{
+    const prior=await storageGet(["lcd_schedule_sync_hash","lcd_schedule_sync_pending","canvas_dash_session"]),changed=syncHash!==prior.lcd_schedule_sync_hash,pending=changed||!!prior.lcd_schedule_sync_pending;
+    await storageSet({lcd_schedule_classes:validClasses,lcd_manual_events:manual,lcd_schedule_imported_at:Date.now(),lcd_schedule_share_mode:mode,lcd_schedule_sync_pending:pending});
+    classes=validClasses;busyBlocks=groupBusy(manual);
+    let synced=false;
+    if(pending&&prior.canvas_dash_session&&prior.canvas_dash_session.access_token){
+      btn.textContent="Syncing…";showStatus("Saved locally · syncing the share-safe schedule to friends…");
+      synced=await syncSharePayload(mode,blocks);
+      if(synced)await storageSet({lcd_schedule_sync_hash:syncHash,lcd_schedule_sync_pending:false,lcd_schedule_synced_at:Date.now()});
     }
-    chrome.storage.local.get(["lcd_schedule_classes","lcd_manual_events"],saved=>{
-      const readErr=chrome.runtime&&chrome.runtime.lastError;
-      if(readErr||!Array.isArray(saved.lcd_schedule_classes)){
-        btn.disabled=false;btn.textContent=btn.dataset.originalText;
-        return showStatus("Schedule was written but could not be verified. Try again.","err");
-      }
-      classes=validClasses;
-      btn.textContent="Saved ✓";
-      showStatus("Schedule saved — updating Canvas…","ok");
-      setTimeout(()=>{try{window.close()}catch(e){}},650);
-    });
-  });
-});$("close").addEventListener("click",()=>window.close());loadExistingBusy();
+    btn.textContent="Saved ✓";
+    if(pending&&!synced)showStatus("Saved locally ✓ · sign in (or open Friends) to finish syncing.","ok");
+    else if(changed&&synced)showStatus("Saved + synced ✓ · friends will refresh automatically.","ok");
+    else showStatus("Saved ✓ · no shareable change, so no Realtime message was sent.","ok");
+    setTimeout(()=>{try{window.close()}catch(e){}},1100);
+  }catch(err){
+    btn.disabled=false;btn.textContent=btn.dataset.originalText;showStatus("Saved locally, but friend sync needs attention: "+(err.message||String(err)),"err");
+    try{await storageSet({lcd_schedule_sync_pending:true})}catch(e){}
+  }
+});
+$("close").addEventListener("click",()=>window.close());
+loadExistingSchedule();
 })();
