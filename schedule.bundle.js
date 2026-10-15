@@ -50,11 +50,11 @@ function addClass(){classes.push({id:"class-manual-"+Date.now(),title:"",courseC
 function addBusy(){busyBlocks.push({id:"busy-"+Date.now(),category:"Work",title:"",days:[1],start:"17:00",end:"18:00",location:"",source:"manual"});renderBusy();setTimeout(()=>{$("busy-list").lastElementChild?.scrollIntoView({behavior:"smooth",block:"center"})},30)}
 async function parseWithLocalAI(){
   if(!imageBlob)throw new Error("Choose a screenshot first.");
-  if(typeof LanguageModel==="undefined")throw new Error("Chrome's on-device image model is not available in this browser profile yet. Use the .ics option for now.");
+  if(typeof LanguageModel==="undefined")throw new Error("Screenshot import needs Chrome's on-device AI. Check Chrome's AI settings and device requirements, or add classes manually / import an .ics file.");
   const opts={expectedInputs:[{type:"text",languages:["en"]},{type:"image"}],expectedOutputs:[{type:"text",languages:["en"]}]};
   setProcessing("Checking on-device AI…","Making sure Chrome's local model is ready.");
   const availability=await LanguageModel.availability(opts);
-  if(availability==="unavailable"){hideProcessing();throw new Error("The on-device model is unavailable on this computer. Use the .ics option for now.");}
+  if(availability==="unavailable"){hideProcessing();throw new Error("Chrome cannot run on-device image import right now. If you removed the model, re-enable on-device AI in Chrome settings and make sure there is enough disk space to download it again. You can add classes manually or import an .ics file.");}
   if(availability==="available")setProcessing("Starting local AI…","Your screenshot stays on this device.");
   else setProcessing("Preparing local AI…","Chrome needs to finish downloading the on-device model.",0);
   const session=await LanguageModel.create({...opts,initialPrompts:[{role:"system",content:"You extract university class meeting schedules from screenshots. Return only valid JSON. Never invent a class, room, day, or time that is not visible. Ignore assignment deadlines, exam dates, grades, and navigation text. Prefer recurring weekly class meetings only. If the same class meets on multiple days at the same time, combine those days into one object."}],monitor(m){m.addEventListener("downloadprogress",e=>{const pct=Math.round((e.loaded||0)*100);setProcessing("Downloading local AI…",pct<100?`Chrome is preparing Gemini Nano · ${pct}%`:"Model downloaded · starting analysis",pct)})}});
