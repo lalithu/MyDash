@@ -1,6 +1,6 @@
 {
   "description": "Plan Canvas work, edit and share your schedule, and coordinate study time with friends.",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "manifest_version": 3,
   "name": "MyDash \u2014 Canvas Student Planner",
   "options_page": "options.html",
@@ -57,5 +57,6 @@
       "48": "icon-48.png"
     }
   },
-  "minimum_chrome_version": "138"
+  "minimum_chrome_version": "138",
+  "homepage_url": "https://lalithu.github.io/MyDash/"
 }

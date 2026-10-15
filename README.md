@@ -14,6 +14,8 @@ Canvas coursework, your weekly schedule, and finding time with friends.
 
 ---
 
+![MyDash welcome screen](docs/assets/01-welcome.jpg)
+
 ## A little more room in your week
 
 - **Plan your work.** See Canvas assignments, deadlines, personal tasks, and completion progress.
@@ -48,11 +50,20 @@ This repository currently ships the compiled extension assets. The original Reac
 node tests/social.test.cjs
 node tests/schedule.test.cjs
 node tests/auth.test.cjs
+node tests/install.test.cjs
 ```
 
 Reload the extension in `chrome://extensions`, then reload Canvas after changes. Use fictional data in screenshots and your own accounts for testing. Never commit passwords, session tokens, service-role keys, or exported user data. The shipped Supabase publishable key identifies the public client; database authorization must be enforced on the server.
 
 Want to run your own backend? Configure your own project in `supabase-config.js`. The current social features depend on project-specific tables and RPCs; this checkout does not yet include a reproducible backend migration. Do not point test scripts at other people's data.
+
+To package the shipped extension assets:
+
+```sh
+python3 scripts/package.py /tmp/MyDash-0.10.2.zip
+```
+
+See [release verification](RELEASE.md) for the checks performed and their limits.
 
 ## Contribute
 

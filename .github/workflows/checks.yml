@@ -13,4 +13,5 @@ jobs:
       - run: node tests/social.test.cjs
       - run: node tests/schedule.test.cjs
       - run: node tests/auth.test.cjs
+      - run: node tests/install.test.cjs
       - run: for file in *.js; do node --check "$file"; done
