@@ -1,0 +1,20 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const s=fs.readFileSync(require('node:path').join(__dirname,'../contentScript.bundle.js'),'utf8');
+const a=s.indexOf('function tfcMinutes'),b=s.indexOf('function tfcOpenScheduleSetup',a);
+class Clock extends Date { constructor(...args){super(...(args.length?args:['2026-10-15T16:10:00']));} }
+const ctx={Date:Clock};vm.createContext(ctx);vm.runInContext(s.slice(a,b),ctx);
+const group={members:['f']},friend={id:'f',shareMode:'busy',schedule:[]};
+assert.equal(ctx.tfcFindTimes(group,[],60,[]).length,0,'missing friend must not count as free');
+assert.equal(ctx.tfcFindTimes(group,[{...friend,shareMode:'hidden'}],60,[]).length,0,'hidden schedule blocks claims');
+const slots=ctx.tfcFindTimes(group,[friend],60,[]);
+assert(slots.length>0);assert(slots.every(x=>x.date.getDate()!==15||x.start>970),'exclude past slots');
+const full=ctx.tfcFindTimes(group,[{...friend,schedule:[{day:4,start:'08:00',end:'21:00'}]}],60,[]);
+assert(full.every(x=>x.date.getDate()!==15),'respect busy time');
+assert(ctx.tfcFindTimes(group,[friend],60,[]).some(x=>x.date.getDate()===15&&x.start===1020),'empty calendar must remain empty');
+const shareStart=s.indexOf('function tfcShareBlocks'),shareEnd=s.indexOf('async function tfcSyncPendingSchedule',shareStart);vm.runInContext(s.slice(shareStart,shareEnd),ctx);
+const cls=[{days:[1],start:'09:00',end:'10:00',title:'Private class',location:'Room 2'}];
+assert.equal(ctx.tfcShareBlocks(cls,[],'hidden').length,0);
+assert.equal(ctx.tfcShareBlocks(cls,[],'busy')[0].title,'Busy');assert.equal(ctx.tfcShareBlocks(cls,[],'busy')[0].location,'');
+assert.equal(ctx.tfcClock(NaN),'Time needed');
+assert.equal(ctx.tfcFindTimes(group,[friend],60,[{day:4,start:'10:00',end:'??:?? AM'}]).length,0);
+console.log('9 social scheduling and sharing checks passed');

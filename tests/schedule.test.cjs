@@ -1,0 +1,4 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const s=fs.readFileSync(require('node:path').join(__dirname,'../schedule.bundle.js'),'utf8'),ctx={DAY_ORDER:[1,2,3,4,5,6,0],dayMap:{mon:1}};vm.createContext(ctx);vm.runInContext(s.slice(s.indexOf('function normalizeTime'),s.indexOf('function timeSelect')),ctx);
+assert.equal(ctx.normalizeTime('??:?? AM'),'');assert.equal(ctx.normalizeTime('25:00'),'');assert.equal(ctx.normalizeTime('12:60'),'');assert.equal(ctx.normalizeTime('12:15 PM'),'12:15');assert.equal(ctx.normalizeTime('12:15 AM'),'00:15');assert.equal(ctx.normalizeTime('10:50'),'10:50');
+const rows=ctx.normalizeRows([{title:'Saved class',days:[1],start:'10:00',end:'??:?? AM'}]);assert.equal(rows.length,1);assert.equal(rows[0].end,'');console.log('7 time normalization and class preservation checks passed');
